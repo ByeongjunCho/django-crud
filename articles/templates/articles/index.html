@@ -1,13 +1,13 @@
 {% extends 'articles/base.html' %}
 {% block body %}
   <h1>게시판에 오신것을 환영합니다.</h1>
-  <a href="/articles/new">글 작성하기</a>
-  <ul>
+  <a href="./new">글 작성하기</a>
+  
     {% for article in articles %}
-    <li>{{article.title}}
-      {{article.created_at}}
-    </li>
-    
+    <p>{{article.pk}}</p>
+    <p>{{article.title}}</p>
+    <p>{{article.created_at}}</p>
+    <hr>
     {% endfor %}
-  </ul>
+  
 {% endblock %}
