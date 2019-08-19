@@ -204,67 +204,70 @@ article = Article.objects.create(title='글', content='내용')
 
   * 리턴되는 값은 `Article`인스턴스
   * `.get()`은 그 결과가 여러개 이거나 없는 경우 오류를 발생시킴.
-  * 따라서, 단일 데이터 조회시에만 사용한다.
+  * 따라서, 단일 데이터 조회시(primary key를 통해)에만 사용한다.
 
-
-
-### pip 설치 파일  관리
-
-```bash
-$ pip freeze > requirements.txt
-```
-
-### pip 환경 설치
-
-```bash
-$ pip install -r requirements.txt
-```
-
-
-
-## 데이터베이스
-
-* models.py(스키마)
+* 특정 데이터 조회
 
   ```python
-  from django.db import models
-  
-  # Create your models here.
-  # 1. 모델(스키마) 정의
-  # 데이터베이스 테이블을 정의하고,
-  # 각각의 컬럼(필드) 정의
-  class Article(models.Model):
-      # CharField - 필수인자로 max_length 지정
-      title = models.CharField(max_length=10)
-      content = models.TextField()
-      # DateTimeField
-      #    auto_now_add : 생성시 자동으로 입력
-      #    auto_now : 수정시마다 자동으로 기록
-      created_at = models.DateTimeField(auto_now_add=True)
-      updated_at = models.DateTimeField(auto_now=True)
+  Article.objects.filter(title='제목1')
+  Article.objects.filter(title__contains='제목') # '제목'이 들어간 모든 데이터
+  Article.objects.filter(title__startswith='제목') # '제목'으로 시작하는 제목
+  Article.objects.filter(title__endswith='제목') # '제목'으로 끝나는 제목
   ```
 
-* makemigrations (마이그레이션 파일 생성)
+  * 리턴되는 값은 `QuerySet`오브젝트
+  * `.filter()`는 없는 경우/하나인 경우/여러개인 경우 모두 `QuerySet`리턴
 
-  ```bash
-  $ python manage.py makemigrations
-  ```
+## 3. Update
 
-* migrate (db 반영)
+```python
+article = Article.objects.get(pk=1)
+article.content = '내용 수정'
+article.save()
+```
 
-  ```bash
-  $ python manage.py migrate
-  ```
+* 수정은 특정 게시글을 데이터베이스에서 가져와서 인스턴스 자체를 수정한 후 `save` 호출
 
-* ipython을 이용한 ORM
+## 4. Delete
 
-  ```bash
-  $ python manage.py shell
-  ```
+```python
+article = Article.objects.get(pk=1)
+article.delete()
+```
 
-  
+## 5. 기타
 
-### python을 이용한 SQL 조작
+### 1. Limiting
+
+```python
+Article.objects.all()[0] # LIMIT 1 : 1개만
+Article.objects.all()[2] # LIMIT 1 OFFSET 2
+Article.objects.all()[:3]
+```
+
+### 2. Ordering
+
+```python
+Article.objects.order_by('-id') # id 기준으로 내림차순 정렬
+Article.objects.order_by('title') # title을 기준으로 오름차순 정렬
+```
+
+
+
+```python
+# urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('articles/', include('articles.urls')),  # articles app/urls.py의 모든 path에 default로 /articles/를 붙인다.
+]
+```
+
+
+
+
 
 ```python
 # 생성
@@ -291,13 +294,3 @@ Article.objects.filter(content__startswith='__원하는값__') # 시작이 __원
 Article.objects.filter(content__endswith='__원하는값__') # 끝이 __원하는값__을 찾음
 
 ```
-
-
-
-ORM(Object Relational Mapping) : python과 SQL간을 객체로 연동해주는 방법
-
-```bash
-$ pip install django-extension
-$ python manage.py shell_plus
-```
-
