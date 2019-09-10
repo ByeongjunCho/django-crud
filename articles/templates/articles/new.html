@@ -1,19 +1,17 @@
 {% extends 'articles/base.html' %}
 {% block body %}
 <h1 class="text-center">글 작성하기</h1>
-
-<form action="/articles/create/">
+<form action="{% url 'articles:create' %}" method="POST">
+  {% csrf_token %}
   <div class="form-group">
     <label for="exampleInputEmail1">제목</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="제목">
-    <small id="emailHelp" class="form-text text-muted">글의 제목을 작성해주세요</small>
+    <input name="title" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="제목을 입력하세요.">
+    <small id="emailHelp" class="form-text text-muted">글의 제목을 작성 해주세요.</small>
   </div>
   <div class="form-group">
     <label for="exampleFormControlTextarea1">내용</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+    <textarea name="content" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
   </div>
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
-
-
 {% endblock %}

@@ -1,12 +1,12 @@
 {% extends 'articles/base.html' %}
 {% block body %}
-<h1>{{article.id}}번 글</h1>
-<h2>제목: {{article.title}}</h2>
-<p>작성일자 : {{article.created_at}}</p>
-<p>수정일자 : {{article.updated_at}}</p>
+<h1>{{ article.id }}번 글</h1>
+<h2>{{ article.title }}</h2>
+<p>작성일자 : {{ article.created_at }}</p>
+<p>수정일자 : {{ article.updated_at }}</p>
 <hr>
-<p>작성내용 : {{article.content}}</p>
-<a href="/articles/" class="btn btn-info">목록으로</a>
-<a href="/articles/{{ article.pk }}/delete/" class="btn btn-warning">글 삭제하기</a>
-<a href="/articles/{{ article.pk }}/edit/"class="btn btn-primary">수정하기</a>
+<p>{{ article.content }}</p>
+<a href="{% url 'articles:index' %}">목록으로</a>
+<a href="{% url 'articles:delete' article.pk %}">[X]</a>
+<a href="{% url 'articles:edit' article.pk %}">수정하기</a>
 {% endblock %}
