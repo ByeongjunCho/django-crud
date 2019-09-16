@@ -190,7 +190,7 @@ article = Article.objects.create(title='글', content='내용')
 
 * 데이터베이스에 저장되면, `id` 값이 자동으로 부여된다. `.save()` 호출하기 전에는 `None` 이다.
 
-## 2. Read
+### 2. Read
 
 * 모든 데이터 조회
 
@@ -223,7 +223,7 @@ article = Article.objects.create(title='글', content='내용')
   * 리턴되는 값은 `QuerySet` 오브젝트
   * `.filter()` 는 없는 경우/하나인 경우/여러개인 경우 모두 `QuerySet` 리턴
 
-## 3. Update
+### 3. Update
 
 ```python
 article = Article.objects.get(pk=1)
@@ -233,16 +233,16 @@ article.save()
 
 * 수정은 특정 게시글을 데이터베이스에서 가져와서 인스턴스 자체를 수정한 후 `save()` 호출.
 
-## 4. Delete
+### 4. Delete
 
 ```python
 article = Article.objects.get(pk=1)
 article.delete()
 ```
 
-## 5. 기타
+### 5. 기타
 
-### 1. Limiting
+#### 1. Limiting
 
 ```python
 Article.objects.all()[0] # LIMIT 1 : 1개만
@@ -250,16 +250,82 @@ Article.objects.all()[2] # LIMIT 1 OFFSET 2
 Article.objects.all()[:3]
 ```
 
-### 2. Ordering
+#### 2. Ordering
 
 ```python
 Article.objects.order_by('-id') # id를 기준으로 내림차순 정렬
 Article.objects.order_by('title') # title을 기준으로 오름차순 정렬
 ```
 
+## 4. Namespace를 이용한 단순작업
+
+* `name`키워드를 이용하여 반복작업을 쉽게 할 수 있다.
+
+```python
+# urls.py
+app_name = 'articles'  # app의 이름
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    # ....
+```
+
+```python
+return redirect('articles:detail', article.pk)
+# url 작성을 한다면 python file 에도 적용 가능하다.
+```
+
+```html
+...
+<form action="{% url 'articles:create' %}" method="POST">
+...
+```
+
+* articles - app_name | create - pathname
+
+```html
+<a href="{% url 'articles:detail' article.pk %}">
+```
+
+* name=detail에 값을 넘겨준다면 넘겨줄 값을 url 뒤에 명시한다.
 
 
 
+## 5. GET/POST를 이용한 분기설정
+
+```python
+# views.py
+def create(request):
+    # 저장 로직
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        article = Article(title=title, content=content)
+        article.save()
+        
+        return redirect('articles:detail', article.pk)
+    else:
+        return render(request, 'articles/new.html')
+```
+
+* 입력의 `method`에 따라 서로 다른 행동이 가능하다.
+
+```python
+from django.views.decorators.http import require_POST
+@require_POST
+def .....
+# ....
+```
+
+* POST가 입력되는 경우만 함수가 실행되도록 할 수 있다.
+
+```html
+<form action="{% url 'articles:update' article.pk%}" method="POST">
+<a href="{% url 'articles:detail' article.pk %}"></a>
+```
+
+* `<form>`태그는 `GET`과 `POST`를 변경하여 사용할 수 있다.
+* `<a>`태그는 `GET`으로 고정되어 있다.
 
 
 
