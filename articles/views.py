@@ -29,10 +29,10 @@ def create(request):
         # embed()
         if article_form.is_valid():
         # 검증에 성공하면 저장
-            title = article_form.cleaned_data.get('title')
-            content = article_form.cleaned_data.get('content')
-            article = Article(title=title, content=content)
-            article.save()
+            # title = article_form.cleaned_data.get('title')
+            # content = article_form.cleaned_data.get('content')
+            # article = Article(title=title, content=content)
+            article = article_form.save()
             return redirect('articles:detail', article.pk)
         # else:
             # return form -> 중복되서 제거
@@ -85,19 +85,21 @@ def delete(request, article_pk):
 def update(request, article_pk):
     article = Article.objects.get(pk=article_pk)
     if request.method == 'POST':
-        article_form = ArticleForm(request.POST)
+        article_form = ArticleForm(request.POST, instance=article)
         if article_form.is_valid():
-            article.title = article_form.cleaned_data.get('title')
-            article.content = article_form.cleaned_data.get('content')
-            article.save()
+            # article.title = article_form.cleaned_data.get('title')
+            # article.content = article_form.cleaned_data.get('content')
+            # article.save()
+            article = article_form.save()
             return redirect('articles:detail', article.pk)
     else:
-        article_form = ArticleForm(
-            initial={
-                'title': article.title,
-                'content': article.content
-                }
-                )
+        # article_form = ArticleForm(
+        #     initial={
+        #         'title': article.title,
+        #         'content': article.content
+        #         }
+        #     )
+        article_form = ArticleForm(instance=article)
     context = {
         'article': article,
         'article_form':article_form
