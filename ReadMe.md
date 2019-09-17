@@ -435,9 +435,43 @@ class ArticleForm(forms.ModelForm):
     )
 ```
 
+* 기존에 있는 모델을 form 형식으로 만들어 `HTML`에서 편하게 사용이 가능하다.
 
+```html
+<!-- article_form이 html로 넘어온 경우 -->
+<form action="" method='POST'>
+  {% csrf_token %}
+  {{ article_form.as_p }}
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+```
 
+* view.py도 간단하게 만들 수 있다.
 
+  ```python
+  # views.py
+  def create(request):
+      if request.method == 'POST':
+      # POST 요청 -> 검증 및 저장 로직
+          article_form = ArticleForm(request.POST)
+          if article_form.is_valid():
+          # 검증에 성공하면 저장
+              article = article_form.save()
+              return redirect('articles:detail', article.pk)
+          # else:
+              # return form -> 중복되서 제거
+      else:
+          # GET 요청 -> Form
+          article_form = ArticleForm()
+      # GET -> 비어있는 Form context
+      # POST -> 검증 실패시 에러메세지와 입력값 다시 context
+      context = {
+          'article_form': article_form
+      }
+      return render(request, 'articles/form.html', context)
+  ```
+
+  
 
 
 

@@ -1,0 +1,101 @@
+[33mcommit 09158b79c93750d4122a7b516f9d257639ed9828[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Sep 17 14:06:14 2019 +0900
+
+    18 | Django-bootstrap4 for ModelForm
+
+[33mcommit 097d3b628c7ec16a7ad477efad3d8eae1e3397c3[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Sep 17 11:45:24 2019 +0900
+
+    17 | Update django form to modelForm
+
+[33mcommit a89d6df8fbfdb210b86f51078f3e6003f1937120[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Sep 17 11:18:12 2019 +0900
+
+    16 | Create Update logic wi
+
+[33mcommit ef42fa775cba2e4e31f1db5bbc52f32bc7d8c1c4[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Sep 16 11:51:17 2019 +0900
+
+    13 | Comment - CRUD -C
+
+[33mcommit ed249ef61d5111801cc56b188ea69204834ce542[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Sep 16 10:43:25 2019 +0900
+
+    12 | Create Comment(1:N) Model
+
+[33mcommit aea45a607fc27f66bdc97d034bb8de9d022c8911[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Sep 10 15:23:34 2019 +0900
+
+    11|Update create, update, delete function
+
+[33mcommit c10cb5cc7357f3cf9ca03228ba5ffef8d03148ae[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Sep 10 13:40:24 2019 +0900
+
+    Name | URL namespace
+
+[33mcommit ea1f74c8e5603ece191d3f358c3eac1cb02703db[m
+Author: taesu-park <tsoo1014@gmail.com>
+Date:   Tue Sep 10 11:56:13 2019 +0900
+
+    백업
+
+[33mcommit 85ffadb7a1b54fbc4a1b109c620c42f12b78acd9[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Aug 20 11:20:55 2019 +0900
+
+    07 | articles - CRUD -U (완료)
+
+[33mcommit c2024fb137901d32643197d58756493e69e50725[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Aug 20 10:28:51 2019 +0900
+
+    06 | articles -CRUD
+
+[33mcommit bb93cac3166be79bc1d92d9a805f36a9e070ad60[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Tue Aug 20 10:03:15 2019 +0900
+
+    05 | articles -CRUD -R
+
+[33mcommit 140a1bdc04ad1edab507ef7508547e909be5d7f8[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 16:40:06 2019 +0900
+
+    04 | articles - CRUD - C
+
+[33mcommit 84c1902220c1c4745dd4065fa24b9a0dc4f6cb8d[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 15:42:54 2019 +0900
+
+    03 | articles index
+
+[33mcommit 0a2e0f79c7f765166f8ecc9913f23338d524db4f[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 15:01:33 2019 +0900
+
+    ReadMe 정리
+
+[33mcommit acbe3e021997704a98fc8d91d14e65df7d85364b[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 12:07:11 2019 +0900
+
+    02 | Article Model
+
+[33mcommit 259ffca3e61586e4b9b9011467d6799facd0144f[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 09:45:32 2019 +0900
+
+    01 | articles app init
+
+[33mcommit c8f97fbfb5977604b435afd24406ea093efb235f[m
+Author: ByeongjunCho <jjgk91@naver.com>
+Date:   Mon Aug 19 09:36:04 2019 +0900
+
+    00 | crud project

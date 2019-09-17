@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from IPython import embed
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -47,7 +47,8 @@ def create(request):
     return render(request, 'articles/form.html', context)
 
 def detail(request, article_pk):
-    article = Article.objects.get(pk=article_pk)
+    # article = Article.objects.get(pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk)
     comments = article.comment_set.all()
     a = ['22', '33', '44']
     context = {
@@ -83,7 +84,7 @@ def delete(request, article_pk):
 #         return redirect('articles:detail', article.pk)    
 
 def update(request, article_pk):
-    article = Article.objects.get(pk=article_pk)
+    article = get_object_or_404(, Article, pk=article_pk)
     if request.method == 'POST':
         article_form = ArticleForm(request.POST, instance=article)   # 수정할 대상이 article이기 때문에 instance로 입력 설정
         if article_form.is_valid():
