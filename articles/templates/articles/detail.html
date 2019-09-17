@@ -14,7 +14,7 @@
 </form>
 <a href="{% url 'articles:update' article.pk %}">수정하기</a>
 <hr>
-<form action="/articles/{{article.pk}}/comment_create/" method='POST'>
+<form action="{% url 'articles:comment_create' article.pk %}" method='POST'>
     {% csrf_token %}
     <input type="text" name="comment_content" id="">
     <input type="submit" value="댓글 작성">
@@ -24,6 +24,11 @@
 {% for comment in comments %}
     <li>{{comment.content}}</li>
     <li>{{comment.created_at}}</li>
+    
+    <form action="{% url 'articles:comment_delete' article.pk comment.pk %}" method='POST'>
+        {% csrf_token %}
+        <input type="submit" value="댓글 삭제">
+    </form>
     <hr>
 {% empty %}
     <p>댓글이 없다.</p>

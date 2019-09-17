@@ -327,9 +327,82 @@ def .....
 * `<form>`태그는 `GET`과 `POST`를 변경하여 사용할 수 있다.
 * `<a>`태그는 `GET`으로 고정되어 있다.
 
+## 6.SQL 1:N
+
+### 1. 1:N 관계 생성
+
+```python
+from django.db import models
+
+# Create your models here.
+# 1. 모델(스키마) 정의
+# 데이터베이스 테이블을 정의하고,
+# 각각의 컬럼(필드) 정의
+class Article(models.Model):
+    # id : integer 자동으로 정의(Primary Key)
+    # id = models.AutoField(primary_key=True) -> Integer 값이 자동으로 하나씩 증가(AUTOINCREMENT)
+    # CharField - 필수인자로 max_length 지정
+    title = models.CharField(max_length=10)
+    content = models.TextField()
+    # DateTimeField
+    #    auto_now_add : 생성시 자동으로 저장
+    #    auto_now : 수정시마다 자동으로 저장
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.id} : {self.title}'
 
 
 
+class Comment(models.Model):
+    content = models.CharField(max_length=140)
+    created_at = models.DateTimeField(auto_now_add=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)  
+    # on_delete
+    # 1. CASCADE : 글이 삭제되었을 때 모든 댓글을 삭제
+    # 2. PROTECT : 댓글이 존재하면 글 삭제 안됨
+    # 3. SET_NULL : 글이 삭제되면 NULL로 치환(NOT NULL일 경우 옵션 사용X)
+    # 4. SET_DEFAULT : 디폴트 값으로 치환.
+
+# models.py : python 클래스 정의
+#           : 모델 설계도
+# makemigrations : migration 파일 생성
+#           : DB 설계도 작성
+# migrate : migration 파일 DB 반영
+
+```
+
+
+
+### 2. 데이터 활용
+
+* 여러 방법으로 데이터 입력이 가능하다.
+
+  ```python
+  # 1. 직접 입력
+  
+  a = Article()
+  a.title = '제목1'
+  a.content = '내용1'
+  
+  c = Comment()
+  c.content = '댓글댓글'
+  c.article = a  # 객체 직접 저장
+  c.reporter_id = 1 # 혹은 id를 직접 입력
+  ```
+  
+* 각 객체가 가진 정보를 확인할 수 있다.
+
+  ```python
+  Article.objects.get(pk=1).comment.content  # '댓글댓글'
+  ```
+
+* Foreign key 확인
+
+  ```python
+  Article.objects.get(pk=1).comment_set.all() # Article(pk=1)객체를 가진 Comment객체를 모두 표시
+  ```
 
 
 
