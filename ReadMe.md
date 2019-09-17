@@ -404,6 +404,37 @@ class Comment(models.Model):
   Article.objects.get(pk=1).comment_set.all() # Article(pk=1)객체를 가진 Comment객체를 모두 표시
   ```
 
+## 7. Model Form
+
+### 1. Model Form 정의
+
+```python
+# form.py
+class ArticleForm(forms.ModelForm):
+    title = forms.CharField(
+        max_length=1, 
+        label='제목',
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': '제목을 입력바랍니다.'
+            }
+        )
+        )
+    content = forms.CharField(
+        # label 내용 수정
+        label='내용',
+        # Django form에서 HTML 속성 지정 -> widget
+        widget=forms.Textarea(
+            attrs={
+                'class': 'my-content',
+                'placeholder': '내용을 입력바랍니다.',
+                'row': 5,
+                'col': 60
+            }
+        )
+    )
+```
+
 
 
 

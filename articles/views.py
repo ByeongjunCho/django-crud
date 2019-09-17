@@ -85,7 +85,7 @@ def delete(request, article_pk):
 def update(request, article_pk):
     article = Article.objects.get(pk=article_pk)
     if request.method == 'POST':
-        article_form = ArticleForm(request.POST, instance=article)
+        article_form = ArticleForm(request.POST, instance=article)   # 수정할 대상이 article이기 때문에 instance로 입력 설정
         if article_form.is_valid():
             # article.title = article_form.cleaned_data.get('title')
             # article.content = article_form.cleaned_data.get('content')
