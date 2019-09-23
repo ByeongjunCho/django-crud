@@ -593,7 +593,27 @@ STATICFILES_DIRS = [
   MEDIA_URL = '/media/'
   ```
 
-  
+* `url.py`에 url을 추가시킨다.
+
+  ```python
+  # urls.py
+  from django.conf import settings
+  from django.conf.urls.static import static
+  # ....
+  urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  ```
+
+* 이미지를 확인하고 싶다면 `html`에서 경로를 연결하여 이미지를 확인할 수 있다.
+
+  ```html
+  <img src="{{ article.image.url }}" alt="{{article.image.name}} ">
+  ```
+
+### 2. image의 크기를 조정하여 저장하기
+
+* 기본 이미지의 크기를 조정하면서 저장이 가능하다
+
+
 
 
 
