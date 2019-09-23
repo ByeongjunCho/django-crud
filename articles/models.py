@@ -31,6 +31,7 @@ class Comment(models.Model):
     # 3. SET_NULL : 글이 삭제되면 NULL로 치환(NOT NULL일 경우 옵션 사용X)
     # 4. SET_DEFAULT : 디폴트 값으로 치환.
 
+
 # models.py : python 클래스 정의
 #           : 모델 설계도
 # makemigrations : migration 파일 생성

@@ -1,6 +1,6 @@
 {% extends 'articles/base.html' %}
-{% block body %}
 {% load bootstrap4 %}
+{% block body %}
 {% if request.resolver_match.url_name == 'create' %}
   <h1 class="text-center">글 작성하기</h1>
 {% else %}

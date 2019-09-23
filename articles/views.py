@@ -4,7 +4,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from IPython import embed
 
-from .forms import ArticleForm
+from .forms import ArticleForm, CommentForm
 from .models import Article, Comment
 # Create your views here.
 def index(request):
@@ -50,10 +50,12 @@ def detail(request, article_pk):
     # article = Article.objects.get(pk=article_pk)
     article = get_object_or_404(Article, pk=article_pk)
     comments = article.comment_set.all()
+    comment_form = CommentForm()
     a = ['22', '33', '44']
     context = {
         'article': article,
         'comments': comments,
+        'comment_form': comment_form,
         'a': a
     }
     return render(request, 'articles/detail.html', context)
@@ -84,7 +86,7 @@ def delete(request, article_pk):
 #         return redirect('articles:detail', article.pk)    
 
 def update(request, article_pk):
-    article = get_object_or_404(, Article, pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk)
     if request.method == 'POST':
         article_form = ArticleForm(request.POST, instance=article)   # 수정할 대상이 article이기 때문에 instance로 입력 설정
         if article_form.is_valid():
@@ -108,13 +110,27 @@ def update(request, article_pk):
     return render(request, 'articles/form.html', context)
 
 def comment_create(request, article_pk):
-    article = Article.objects.get(pk=article_pk)
-    comment = Comment()
-    comment.content = request.POST.get('comment_content')
-    comment.article = article
-    comment.article_id = article_pk
-    comment.save()
-    return redirect('articles:detail', article.pk)
+    article = get_object_or_404(Article, pk=article_pk)
+    # 1. modelform에 사용자 입력값 넣고
+    comment_form = CommentForm(request.POST)  # ModelForm instance
+    # 2. 검증
+    if comment_form.is_valid():
+        # 3. 맞으면 저장
+        # 3-1. 사용자 입력값으로 comment instance 생성 (wjwkddms X)
+        comment = comment_form.save(commit=False)  # comment object
+        # 3-2. Foreign key를 입력하고 저장
+        comment.article = article
+        comment.save()
+        # 4. return redirect
+        return redirect('articles:detail', article_pk)
+
+    # article = Article.objects.get(pk=article_pk)
+    # comment = Comment()
+    # comment.content = request.POST.get('comment_content')
+    # comment.article = article
+    # comment.article_id = article_pk
+    # comment.save()
+    # return redirect('articles:detail', article.pk)
 
 @require_POST
 def comment_delete(request, article_pk, comment_pk):

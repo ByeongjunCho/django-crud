@@ -471,7 +471,26 @@ class ArticleForm(forms.ModelForm):
       return render(request, 'articles/form.html', context)
   ```
 
-  
+
+### 2. ModelForm save중 Foreign Key따로 저장하는 방법
+
+```python
+# views.py
+def comment_create(request, article_pk):
+    article = get_object_or_404(Article, pk=article_pk)
+    # 1. modelform에 사용자 입력값 넣고
+    comment_form = CommentForm(request.POST)  # ModelForm instance
+    # 2. 검증
+    if comment_form.is_valid():
+        # 3. 맞으면 저장
+        comment = comment_form.save(commit=False)  # comment object
+        comment.article = article
+        comment.save()
+        # 4. return redirect
+        return redirect('articles:detail', article_pk)
+```
+
+
 
 
 
