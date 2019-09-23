@@ -501,10 +501,99 @@ def comment_create(request, article_pk):
 ### 1. static을 위한 기본 설정
 
 ```python
+# setting.py
+# ...
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.2/howto/static-files/
+
+# static file들을 모두 모아서 해당 URL로 표현된다. (물리 폴더를 뜻하는 것이 아니다.)
+# /static/boostarap
+# /static/articles/style.css
+STATIC_URL = '/static/'  
+
+# static file 물리 위치 지정
+# 기본적으로는 app에 있는 static 폴더들을 모두 관리하며, 아래에 임의의 폴더들을 추가할 수 있다.
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'crud', 'assets')
+]
+# MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 ```
 
+* 해당 폴더 내부에 해당 파일이 있어야 한다.
+* `static`설정은 해당 Template에서만 가능하다(Django Template 불러오기는 가능하지 않음)
 
+```html
+<!-- ...... -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'articles/style.css' %}">  
+```
+
+* 같은 방법으로 해당 폴더에 있는 이미지를 불러올 수 있다.
+
+```html
+<!-- ... -->
+{% load static %}
+<img src="{% static 'articles/gom.jpg' %}" class="rounded mx-auto d-block" alt="">
+<!-- ... -->
+```
+
+## 9. 서버에 이미지 로드하기
+
+### 1. 기본 설정
+
+* `models.py`에 이미지 저장을 위한 공간을 지정한다.
+
+  ```python
+  # model.py
+  class Article(models.Model):
+      # ...
+      image = models.ImageField()
+      # ...
+  ```
+
+* image저장을 위해 `views.py`에 `request`를 받을 수 있게 설정한다.
+
+  ```python
+  def create(request):
+      # ...
+      article.image = request.FILES.get('image')
+      article.save()
+      
+      return redirect('/articles/')
+  
+  # django form을 사용하는 경우
+  def create(request):
+      if request.method == 'POST':
+      # POST 요청 -> 검증 및 저장 로직
+          article_form = ArticleForm(request.POST, request.FILES)  # POST와 FILES를 받아온다
+          if article_form.is_valid():
+          # 검증에 성공하면 저장
+              article = article_form.save()
+              return redirect('articles:detail', article.pk)
+  
+  ```
+
+* `html`의 `<input>`태그를 이용해 이미지를 받을 수 있다.
+
+* 이때, `enctype`를 꼭 설정해주어야 한다.
+
+  ```python
+  <form action="" method='POST' class="form" enctype="multipart/form-data">
+  <label for="image">이미지</label>
+          <input type="file" name="image" id="image">
+  ```
+
+* `setting.py`에 image를 위한 폴더 경로를 설정한다.
+
+  ```python
+  # setting.py
+  # media file이 실제로 저장되는 파일의 경로
+  MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+  MEDIA_URL = '/media/'
+  ```
+
+  
 
 
 

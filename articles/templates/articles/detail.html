@@ -7,6 +7,8 @@
 <p>수정일자 : {{ article.updated_at }}</p>
 <hr>
 <p>{{ article.content }}</p>
+<img src="{{ article.image.url }}" alt="{{article.image.name}} ">
+
 <a href="{% url 'articles:index' %}">목록으로</a>
 <a href="{% url 'articles:delete' article.pk %}">[X]</a>
 <form action="{% url 'articles:delete' article.pk %}" method='POST' onclick="return confirm('지울꺼임?')">

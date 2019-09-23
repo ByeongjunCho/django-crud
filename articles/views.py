@@ -25,14 +25,18 @@ def create(request):
     # POST 요청 -> 검증 및 저장 로직
         # title = request.POST.get('title')
         # content = request.POST.get('content')
-        article_form = ArticleForm(request.POST)
-        # embed()
+        article_form = ArticleForm(request.POST, request.FILES)
         if article_form.is_valid():
         # 검증에 성공하면 저장
             # title = article_form.cleaned_data.get('title')
             # content = article_form.cleaned_data.get('content')
             # article = Article(title=title, content=content)
             article = article_form.save()
+            # article = article_form.save(commit=False)
+            # article.image = request.FILES.get('image')
+            # embed()
+            # article.save()
+            
             return redirect('articles:detail', article.pk)
         # else:
             # return form -> 중복되서 제거
