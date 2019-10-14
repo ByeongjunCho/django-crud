@@ -500,6 +500,9 @@ def comment_create(request, article_pk):
 
 ### 1. static을 위한 기본 설정
 
+- 해당 폴더 내부에 해당 파일이 있어야 한다.
+- `static`설정은 해당 Template에서만 가능하다(Django Template 불러오기는 가능하지 않음)
+
 ```python
 # setting.py
 # ...
@@ -520,8 +523,7 @@ STATICFILES_DIRS = [
 # MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 ```
 
-* 해당 폴더 내부에 해당 파일이 있어야 한다.
-* `static`설정은 해당 Template에서만 가능하다(Django Template 불러오기는 가능하지 않음)
+*  static은 기존의 데이터를 사용하는 것으로 요청에 대한 응답만 한다.
 
 ```html
 <!-- ...... -->
@@ -542,6 +544,12 @@ STATICFILES_DIRS = [
 
 ### 1. 기본 설정
 
+* models.ImageField() 를 사용하기 위해서는 pillow` 라이브러리가 필요하다.
+
+  ```bash
+  pip install pillow
+  ```
+
 * `models.py`에 이미지 저장을 위한 공간을 지정한다.
 
   ```python
@@ -555,6 +563,7 @@ STATICFILES_DIRS = [
 * image저장을 위해 `views.py`에 `request`를 받을 수 있게 설정한다.
 
   ```python
+  # views.py
   def create(request):
       # ...
       article.image = request.FILES.get('image')
@@ -571,7 +580,6 @@ STATICFILES_DIRS = [
           # 검증에 성공하면 저장
               article = article_form.save()
               return redirect('articles:detail', article.pk)
-  
   ```
 
 * `html`의 `<input>`태그를 이용해 이미지를 받을 수 있다.
@@ -589,11 +597,12 @@ STATICFILES_DIRS = [
   ```python
   # setting.py
   # media file이 실제로 저장되는 파일의 경로
+  # static 설정과 같다(폴더를 연결해야 이미지를 저장하고 보낼 수 있다.)
   MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
   MEDIA_URL = '/media/'
   ```
 
-* `url.py`에 url을 추가시킨다.
+* `url.py`에 url을 추가시킨다. **url설정은 꼭 필요하다.**
 
   ```python
   # urls.py
@@ -611,7 +620,60 @@ STATICFILES_DIRS = [
 
 ### 2. image의 크기를 조정하여 저장하기
 
-* 기본 이미지의 크기를 조정하면서 저장이 가능하다
+* 이미지 설정을 변경하고 저장하기 위해서는 `imagekit` 라이브러리가 필요하다.
+
+  ```bash
+  pip install django-imagekit
+  ```
+
+* 사용을 위해서는 `setting.py`에 추가해주어야 한다.
+
+  ```python
+  # settings.py
+  INSTALLED_APPS = [
+      # ....
+      'django_extensions',
+      'bootstrap4',
+      'imagekit',
+  ]
+  ```
+
+* 기본 이미지의 크기를 조정하면서 저장이 가능하다.
+
+  ```python
+  from django.db import models
+  from imagekit.models import ProcessedImageField, ImageSpecField
+  from imagekit.processors import ResizeToFill
+  
+  class Article(models.Model):
+      title = models.CharField(max_length=10)
+      content = models.TextField()
+      image = models.ImageField(blank=True)
+      # ImageSpecField : Input 하나만 받고 처리해서 저장(1개의 이미지를 이용해 처리하여 저장)
+      # ProcessedImageField : Input 받은 것을 처리해서 저장(여러 이미지를 입력받아 처리)
+      # resize to fill : 300 * 300
+      # resize to fit : 긴쪽을(너비 혹은 높이) 300에 맞추고 비율에 맞게 자름
+      image_thumbnail = ImageSpecField(          # 
+          processors=[ResizeToFill(300, 300)],   # 
+          format='JPEG',   # format 옵션
+          options={'quality': 80}  # 압축 퀄리티
+      )
+      
+      created_at = models.DateTimeField(auto_now_add=True)
+      updated_at = models.DateTimeField(auto_now=True)
+  
+      def __str__(self):
+          return f'{self.id} : {self.title}'
+  ```
+
+* `ImageSpecField`는 폴더에 원본 데이터만 저장하고 요청이 들어오면 해당하는 이미지 처리를 하여 임시 폴더에 저장한다.
+
+  ```html
+  <img src="{{ article.image.url }}" alt="{{article.image.name}} ">
+  <img src="{{ article.image_thumbnail.url }}" alt="{{article.image_thumbnail.name}} ">
+  ```
+
+  
 
 
 
