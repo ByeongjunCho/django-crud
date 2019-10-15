@@ -120,11 +120,11 @@ def comment_create(request, article_pk):
     # 2. 검증
     if comment_form.is_valid():
         # 3. 맞으면 저장
-        # 3-1. 사용자 입력값으로 comment instance 생성 (wjwkddms X)
-        comment = comment_form.save(commit=False)  # comment object
+        # 3-1. 사용자 입력값으로 comment instance 생성 (저장은 X)
+        comment = comment_form.save(commit=False)  # comment object로 리턴된다.
         # 3-2. Foreign key를 입력하고 저장
         comment.article = article
-        comment.save()
+        comment.save()  # DB에 쿼리
         # 4. return redirect
         return redirect('articles:detail', article_pk)
 

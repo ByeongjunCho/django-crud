@@ -483,7 +483,7 @@ def comment_create(request, article_pk):
     # 2. 검증
     if comment_form.is_valid():
         # 3. 맞으면 저장
-        # 3-1. 사용자 입력값으로 comment instance 생성 (wjwkddms X)
+        # 3-1. 사용자 입력값으로 comment instance 생성 (저장 X)
         comment = comment_form.save(commit=False)  # comment object 리턴값
         # comment = Comment()
     	# comment.content = request.POST.get('comment_content')
@@ -673,9 +673,32 @@ STATICFILES_DIRS = [
   <img src="{{ article.image_thumbnail.url }}" alt="{{article.image_thumbnail.name}} ">
   ```
 
-  
 
+## 10. 회원가입 생성
 
+### 1. 기존에 존재하는 Model Form 을 이용한 생성방법
+
+```python
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+# Create your views here.
+
+def signup(request):
+    if request.method == 'POST':
+        user_form = UserCreationForm(request.POST)
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('articles:index')
+    else:
+        user_form = UserCreationForm()
+    context = {
+        'user_form': user_form
+    }
+    return render(request, 'accounts/signup.html', context)
+```
+
+* 기존에 있는 `UserCreationForm`을 이용하면 간단하게 형식을 만들 수 있다.
 
 
 
