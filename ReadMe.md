@@ -679,7 +679,7 @@ STATICFILES_DIRS = [
 ### 1. 기존에 존재하는 Model Form 을 이용한 생성방법
 
 ```python
-# views.py
+# accounts/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 # Create your views here.
@@ -700,7 +700,36 @@ def signup(request):
 
 * 기존에 있는 `UserCreationForm`을 이용하면 간단하게 형식을 만들 수 있다.
 
+### 2. Login in 환경 구현
 
+```python
+# accounts/views.py
+from django.contrib.auth.forms import AuthenticationForm
+
+
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST) # cookie와 session을 request를 통해 넘겨준다.
+        if form.is_valid():
+            # 로그인
+            user = form.get_user() # user를 가지고 와서
+            auth_login(request, user) # login함수에 입력
+            return redirect('articles:index')
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+* `request`에는 이미 사용자 정보가 들어 있어서 context로 정보를 넘기지 않아도 `user`을 통해 사용할 수 있다.
+
+  ```html
+  <a class="nav-link">{{ user.username }} </a>  
+  ```
+
+  
 
 
 

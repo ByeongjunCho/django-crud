@@ -1,0 +1,12 @@
+{% extends 'articles/base.html' %}
+{% load bootstrap4 %}
+{% block body %}
+<form action="" method='POST' class="form" >
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% comment %} <button type="submit" class="btn btn-primary">Submit</button> {% endcomment %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  {% endbuttons %}
+</form>
+{% endblock %}
