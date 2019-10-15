@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from IPython import embed
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from IPython import embed
 
@@ -19,8 +20,12 @@ def index(request):
 #     if request.method == 'GET':
 #         return render(request, 'articles/new.html')
     
-
+@login_required
 def create(request):
+    # if not request.user.is_authenticated:
+    #     messages.error(request, '로그인해')
+    #     return redirect('articles:index')
+
     if request.method == 'POST':
     # POST 요청 -> 검증 및 저장 로직
         # title = request.POST.get('title')
@@ -49,6 +54,7 @@ def create(request):
         'article_form': article_form
     }
     return render(request, 'articles/form.html', context)
+
 
 def detail(request, article_pk):
     # article = Article.objects.get(pk=article_pk)

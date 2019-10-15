@@ -19,7 +19,7 @@
 <a href="{% url 'articles:update' article.pk %}">수정하기</a>
 <hr>
 <form action="{% url 'articles:comment_create' article.pk %}" method='POST'>
-    {% csrf_token %}
+    {% csrf_token %}   
     {% bootstrap_form comment_form %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">댓글 작성</button>

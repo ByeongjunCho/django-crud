@@ -726,7 +726,30 @@ def login(request):
 * `request`에는 이미 사용자 정보가 들어 있어서 context로 정보를 넘기지 않아도 `user`을 통해 사용할 수 있다.
 
   ```html
+  <!--html의 경우 -->
   <a class="nav-link">{{ user.username }} </a>  
+  ```
+
+* Login상태를 확인해주는 메서드가 존재한다.
+
+  ```python
+  rquest.user.is_authenticated
+  # request.user 은 현재 로그인한 user의 정보를 보여준다.
+  # 로그인이 되지 않은 경우는 
+  # request는 요청받은 데이터 객체
+  ```
+
+  ```html
+  {% user.is_authenticated %}
+  ```
+
+* 혹은 데코레이터를 사용할 수 있다.
+
+  ```python
+  from django.contrib.auth.decorators import login_required
+  # ...
+  @login_required
+  def .....
   ```
 
   

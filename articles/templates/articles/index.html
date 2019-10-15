@@ -12,7 +12,9 @@
   <img src="{% static 'articles/gom.jpg' %}" class="rounded mx-auto d-block" alt="">
   
   <h1 class="text-center title">게시판에 오신걸 환영합니다.</h1>
+  {% if user.is_authenticated %}
   <a href="{% url 'articles:create' %}" class="btn btn-warning">글 작성하기</a>
+  {% endif %}
   <table class="table mt-5">
     <thead>
       <tr>
