@@ -9,7 +9,7 @@
 <p>{{ article.content }}</p>
 <img src="{{ article.image.url }}" alt="{{article.image.name}} ">
 <img src="{{ article.image_thumbnail.url }}" alt="{{article.image_thumbnail.name}} ">
-
+<p>이 글을 작성한 닝겐 : {{article.user}}</p>
 <a href="{% url 'articles:index' %}">목록으로</a>
 <a href="{% url 'articles:delete' article.pk %}">[X]</a>
 <form action="{% url 'articles:delete' article.pk %}" method='POST' onclick="return confirm('지울꺼임?')">

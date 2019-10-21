@@ -141,3 +141,4 @@ MEDIA_URL = '/media/'
 
 # AUTH
 LOGIN_URL = '/accounts/login'  # default  @login_required에서 사용
+AUTH_USER_MODEL = 'accounts.User'  # default - 'auth.User'

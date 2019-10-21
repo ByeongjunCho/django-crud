@@ -1,4 +1,6 @@
 from django.db import models
+
+from django.conf import settings
 from imagekit.models import ProcessedImageField, ImageSpecField
 from imagekit.processors import ResizeToFill
 
@@ -27,6 +29,8 @@ class Article(models.Model):
     #    auto_now : 수정시마다 자동으로 저장
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 로그인된 User객체 저장
+    # settings.AUTH_USER_Model : 'accounts.User'(str)
 
     def __str__(self):
         return f'{self.id} : {self.title}'

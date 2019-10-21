@@ -768,5 +768,300 @@ def login(request):
 
   
 
+## 11. 회원정보 변경
 
+```python
+# views.py
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
+
+@login_required
+def update(request):
+    if request.method == 'POST':
+        # 1. 사용자가 보낸 내용을 담아서
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        # 2. 검증
+        if form.is_valid():
+            form.save()
+            return redirect('articles:index')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    return render(request, 'accounts/form.html', {'form': form})
+
+def password_change(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)  # 반드시 첫번째
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect('articles:index')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/password_change.html', {'form': form})
+```
+
+
+
+## 12. User 기능
+
+### 1. 장고 User
+
+* 장고는 User관련 기능이 내부적으로 있어서 가져다 쓰면 된다.
+
+* django.contrib.auth.models.User 를 변경해야 한다면
+
+  => 상속받아서 만들면 된다.
+
+  => DB와 연결되어 있어 다 변경해야 함
+
+  => 프로젝트를 만들면서 미리 수행 권장 : Django 추천
+
+  => 변경 후 settings 설정의 AUTH_USER_model()
+
+  => User클래스는 get_user_model() settings설정에서  
+
+  
+
+* models.py에서 get_user_model 사용이 힘들다.
+
+  => 장고 명령어 수행 순서 때문에 사용하지 못할 수 있다.
+
+  => User 클래스가 아직 없을 수 있다.
+
+  => 그냥 settings.AUTH_USER_MODEL 을 사용하면 알아서 바꿔준다.
+
+* UserCreationForm을 못쓰는 이유
+
+  => 실제 내부 코드는 User을 import해서 사용(from django.contrib.auth.models import User)
+
+  => get_user_model()을 사용하고 상속받아 덮어쓰자
+
+* 프로젝트 시작시 User 모델을 빼자
+
+  => User 클래스가 필요하면, get_user_model()을 호출하여 사용하자.
+
+  => models.py에서만 settings.AUTH_USER_MODEL 을 사용하자.
+
+### 2. User객체를 저장하는 Model 설정
+
+```python
+from django.db import models
+from django.conf import settings
+
+class Article(models.Model):
+    # ......
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 로그인된 User객체 저장
+    # settings.AUTH_USER_Model : 'accounts.User'(str)
+# from django.conf import settings.AUTH_USER_MODEL
+```
+
+`from django.conf import settings.AUTH_USER_MODEL` : 현재 로그인된 User class 객체
+
+`from django.contrib.auth import get_user_model` : User class
+
+## 13 .(User) Django Authentication
+
+### `User` Class
+
+> django에서는 프로젝트를 시작할 때, 항상 `User`Class를 직접 만드는 것을 추천함! [링크]( https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#substituting-a-custom-user-model )
+>
+> django의 기본 Authentication과 관련된 설정 값들을 활용하기 위해 `accounts` 앱으로 시작하는 것을 추천(ex-LOGIN_URL = '/accounts/login/')
+
+1. `models.py`
+
+   ```python
+   # accounts/models.py
+   from django.contrib.auth.models import AbstractUser
+   
+   class User(AbstractUser):
+       pass
+   ```
+
+   > django 내부에서 `User`를 기본적으로 사용한다. ex) `python manage.py createsuperuser`
+   >
+   > 확장 가능성(변경)을 위해 원하는 앱에 내가 원하는 형식으로 class를 정의
+   >
+   > `User`상속관계 [Github 링크]( https://github.com/django/django/blob/master/django/contrib/auth/models.py#L384 )   [공식문서링크]( https://docs.djangoproject.com/en/2.2/ref/contrib/auth/#fields )
+   >
+   > * `AbstractUser` : `username`, `last_name`, `first_name`, `email`, ....
+   > * `AbstractBaseUser`: `password`, `last_login`
+   > * `models.Model`
+
+2. `settings.py`
+
+   ```python
+   # project/settings.py
+   
+   AUTH_USER_MODEL = 'accounts.User'
+   ```
+
+   * `User`클래스를 활용하는 경우에는 `get_user_model()`을 함수를 호출하여 사용한다.
+
+     ```python
+     # accounts/forms.py
+     from django.contrib.auth import get_user_model
+     
+     class CustomUserChangeForm(UserChangeForm):
+         class Meta:
+             model = get_user_model() # User return
+             fields = ['username', 'first_name', 'last_name']
+     ```
+
+     
+
+   * 단, `models.py`에서 사용하는 경우에는 `settings.AUTH_USER_MODEL`을 활용한다.[settings]( https://docs.djangoproject.com/en/2.2/ref/settings/#auth-user-model )
+
+     ```python
+     # articles/models.py
+     from django.conf import settings
+     
+     class Article(models.Model):
+         user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASECADE)
+     ```
+     
+     [공식문서-Referencing the `User`model]( https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#referencing-the-user-model)
+   
+3. `admin.py`
+
+   * admin 페이지를 활용하기 위해서는 직접 작성을 해야 한다.
+
+   * `UserAdmin`설정을 그대로 활용할 수 있다.
+
+     ```python
+     # accounts/admin.py
+     from django.contrib.auth.admin import UserAdmin
+     from .models import User
+     
+     admin.site.register(User, UserAdmin)
+     ```
+
+     
+
+## 14. Authentication Forms
+
+### 1. `UserCreationForm`: ModelForm
+
+* custom user를 사용하는 경우 직접 사용할 수 없음.
+  * 실제 코드상에 `User`가 직접 import 되어 있기 때문에[Github 링크]()
+
+```python
+# accounts/form
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth import get_user_model
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = get_user_model() # User return
+        fields = ['username', 'first_name', 'last_name']
+```
+
+* `ModelForm`이므로 활용 방법은 동일하다.
+
+### 2. `UserChangeForm`: ModelForm
+
+* custom user를 사용하는 경우 직접 사용할 수 없음.
+* 그대로 활용하는 경우 `User`와 관련된 모든 내용을 수정하게 됨
+  * 실제 코드상에 필드가 `__all__`로 설정되어 있음. [Github 링크]()
+
+```python
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth import get_user_model
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'first_name', 'last_name')
+```
+
+
+
+### 3. `AuthenticationForm`
+
+* `ModelForm`이 아님! **인자 순서를 반드시 기억하자**
+* `AuthenticationForm(request, data, .....)`
+
+```python
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request=request, data=request.POST) # cookie와 session을 request를 통해 넘겨준다.
+        if form.is_valid():
+            # 로그인
+            # from IPython import embed
+            # embed()
+            user = form.get_user() # user를 가지고 와서
+            auth_login(request, user) # login함수에 입력
+            return redirect(request.GET.get('next') or 'articles:index') # 단축평가
+            # return redirect('articles:index')
+    else:
+        form = AuthenticationForm()
+        print(form)
+    context = {
+        'form': form
+    }
+    return render(request, 'accounts/login.html', context)
+```
+
+* 로그인에 성공한 `user`의 인스턴스는 `get_user()`메소드를 호출하여 사용한다.
+
+* 실제 로그인은 아래의 함수를 호출하여야 한다.
+
+  ```python
+  from django.contrib.auth import login as auth_login
+  auth_login(request, user)
+  ```
+
+  
+
+### 4. `PasswordChangeForm`
+
+* `ModelForm`이 아님! **인자 순서를 반드시 기억하자**
+
+* `PasswordChangeForm(user, data)`
+
+  ```python
+  if request.method == 'POST':
+  	form = PasswordChangeForm(request.user, request.data)
+  else:
+      form = PasswordChangeForm(request.user)
+  ```
+
+* 비밀번호가 변경이 완료된 이후에는 기존 세션 인증 내역이 바뀌어서 자동으로 로그아웃된다. 따라서, 아래의 함수를 호출하면, 변경된 비밀번호로 세션 내역을 업데이트한다.
+
+  ```python
+  from django.contrib.auth import update_session_auth_hash
+  update_session_auth_hash(request, form.user)
+  ```
+
+## 15. (참고사항)Appendix.import
+
+```python
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import User
+from django.contrib.auth.forms import AbstractUser
+from django.contrib.auth.forms import AbstractBaseUser
+from django.contrib.auth.decorators import login_required
+```
+
+```python
+from django.conf import settings
+```
+
+```python
+from django.db import models # models.Model, models.CharField()......
+from django import forms # forms.ModelForm, forms.form
+```
+
+```python
+from django.shortcuts import render, redirect, get_object_or_404
+```
+
+```python
+from django.views.decorators.http import require_POST, ....
+```
 

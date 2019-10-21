@@ -3,6 +3,8 @@ from IPython import embed
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+# from accounts.models import User
+from django.contrib.auth import get_user_model 
 from IPython import embed
 
 from .forms import ArticleForm, CommentForm
@@ -36,7 +38,9 @@ def create(request):
             # title = article_form.cleaned_data.get('title')
             # content = article_form.cleaned_data.get('content')
             # article = Article(title=title, content=content)
-            article = article_form.save()
+            article = article_form.save(commit=False)
+            article.user = request.user  # User class의 객체
+            article.save()
             # article = article_form.save(commit=False)
             # article.image = request.FILES.get('image')
             # embed()

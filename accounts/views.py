@@ -4,20 +4,20 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login  # login함수
 from django.contrib.auth import logout as auth_logout
-from .forms import CustomUserChangeForm
+from .forms import CustomUserChangeForm, CustomUserCreationForm
 # Create your views here.
 
 def signup(request):
     if request.user.is_authenticated:  # 로그인 상태 확인
         return redirect('articles:index')  # 로그인이 된 경우 index로 redirect
     if request.method == 'POST':
-        user_form = UserCreationForm(request.POST)
-        if user_form.is_valid():
-            user = user_form.save()
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
             auth_login(request, user)
             return redirect('articles:index')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     context = {
         'form': form
     }
@@ -64,7 +64,7 @@ def password_change(request):
         form = PasswordChangeForm(request.user, request.POST)  # 반드시 첫번째
         if form.is_valid():
             form.save()
-            update_session_auth_hash(request, form.user)
+            update_session_auth_hash(request, form.user)  # 비밀번호 변경 후 로그아웃되지 않도록 session을 업데이트한다.
             return redirect('articles:index')
     else:
         form = PasswordChangeForm(request.user)
