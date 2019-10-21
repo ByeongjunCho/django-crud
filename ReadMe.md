@@ -496,6 +496,20 @@ def comment_create(request, article_pk):
         return redirect('articles:detail', article_pk)
 ```
 
+### 3. (참고) ModelForm에서 `input`태그의 설정을 변경하는 방법
+
+```python
+# ...
+class MovieForm(forms.ModelForm):
+    open_date = forms.DateField(
+        label = '개봉일',
+        widget = forms.DateInput(attrs={
+            'type': 'date'})
+    )
+```
+
+
+
 ## 8. static 설정
 
 ### 1. static을 위한 기본 설정
