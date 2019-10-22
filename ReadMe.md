@@ -693,6 +693,14 @@ STATICFILES_DIRS = [
 ### 1. 기존에 존재하는 Model Form 을 이용한 생성방법
 
 ```python
+# settings.py
+LOGIN_URL = '/accounts/login'
+AUTH_USER_MODEL = 'accounts.User'
+```
+
+
+
+```python
 # accounts/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -1064,4 +1072,162 @@ from django.shortcuts import render, redirect, get_object_or_404
 ```python
 from django.views.decorators.http import require_POST, ....
 ```
+
+## 16 .M:N Many to many
+
+### 1. 중개 모델
+
+```python
+from django.db import models
+
+# Create your models here.
+class Doctor(models.Model):
+    name = models.TextField()
+
+class Patient(models.Model):
+    name = models.TextField()
+
+class Reservation(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+```
+
+1. 예약 만들기
+
+   ```python
+   d1=Doctor.objects.create(name='kim')
+   p1=Patient.objects.create(name='taewoo')
+   Reservation.objects.create(doctor=d1,patient=p1)
+   ```
+
+2. 1번 환자의 예약 목록
+
+   ```python
+   p1.reservation_set.all()
+   ```
+
+3. 1번 의사의 예약 목록
+
+   ```python
+   d1.reservation_set.all()
+   ```
+
+4. 1번 의사의 환자 목록
+
+   * 지금 상태에서 바로 의사가 해당하는 환자들로 접근을 할 수는 없다.
+
+   ```python
+   for r in d1.reservation_set.all():
+       print(r.patient)
+   ```
+
+### 2. 중개 모델(through 옵션)
+
+> 의사->환자 혹은 환자->의사로 접근을 하기 위해서는 `ManyToManyField`옵션을 사용한다.
+>
+> `Reservation`모델을 활용하려면 `through`옵션을 사용한다.
+>
+> `through`옵션이 없으면, 기본적으로 `APPNAME_patient_doctor` 테이블을 생성한다.
+
+```python
+from django.db import models
+
+# Create your models here.
+class Doctor(models.Model):
+    name = models.TextField()
+    
+class Patient(models.Model):
+    name = models.TextField()
+    doctors = models.ManyToManyField(Doctor, through='Reservation')
+
+class Reservation(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+```
+
+* 마이그레이션 파일을 만들거나 마이그레이트 할 필요가 없다.
+* 즉, 데이터베이스는 전혀 변경되는 것이 없다.
+
+1. 1번 의사의 예약 목록
+
+   ```python
+   d1.reservation_set.all()
+   ```
+
+2. 1번 의사의 환자 목록
+
+   > `Doctor`는 `Patient`의 역참조이므로, `naming convention`에 따라 아래와 같이 접근
+
+   ```python
+   d1.patient_set.all()
+   ```
+
+3. 1번 환자의 의사 목록
+
+   * `Patient`는 `Doctor`의 직접참조(`Doctor`)이므로, 아래와 같이 접근
+
+   ```pyhon
+   p1.doctors.all()
+   ```
+
+#### 2.1 `related_name`
+
+```python
+from django.db import models
+
+# Create your models here.
+class Doctor(models.Model):
+    name = models.TextField()
+    
+
+class Patient(models.Model):
+    name = models.TextField()
+    doctors = models.ManyToManyField(Doctor, through='Reservation', related_name='patients')
+
+class Reservation(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+```
+
+* 역참조시 `related_name`옵션으로 직접 설정할 수 있다.
+  * 설정하지 않으면 기본적으로 `Model명_set`으로 된다.
+* 반드시 설정할 필요는 없지만, 필수적인 상황이 발생할 수 있다.
+  * ex) `User` - `Article`
+* 따라서, `ManyToManyField`를 쓸 때에는 항상 `related_name`을 설정하고, 모델의 복수형으로 표기하자.
+
+1. 1번 의사의 환자 목록
+
+   ```python
+   d1.patients.all()
+   ```
+
+### 3. 중개모델 없이 작성
+
+```python
+from django.db import models
+
+# Create your models here.
+class Doctor(models.Model):
+    name = models.TextField()
+    
+
+class Patient(models.Model):
+    name = models.TextField()
+    doctors = models.ManyToManyField(Doctor, related_name='patients')
+```
+
+* `앱이름_patient_doctors`로 테이블이 자동으로 생성된다.
+* 별도의 컬럼이 필요 없는 경우는 위와 같이 작성한다.
+* 만약, 예약시 추가정보(ex - 시간, 담당자 ....)를 담기 위해서라면 반드시 중개 모델이 필요하다.
+
+1. 예약 생성
+
+   ```python
+   d2 = Doctor.objects.create(name='kim')
+   p2 = Patient.objects.create(name='hwang')
+   
+   d2.patients.add(p2)
+   ```
+
+   
 
