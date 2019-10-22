@@ -3,7 +3,9 @@ from IPython import embed
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 # from accounts.models import User
+from django.http import HttpResponseForbidden
 from django.contrib.auth import get_user_model 
 from IPython import embed
 
@@ -79,9 +81,12 @@ def detail(request, article_pk):
 @require_POST
 def delete(request, article_pk):
     article = Article.objects.get(pk=article_pk)
+    if article.user == request.user:
     # if request.method == 'POST':
-    article.delete()
-    return redirect('articles:index')
+        article.delete()
+        return redirect('articles:index')
+    else:
+        raise PermissionDenied
     # else:
     #     return redirect('articles:detail', article_pk)
 
@@ -100,29 +105,36 @@ def delete(request, article_pk):
 #         return redirect('articles:detail', article.pk)    
 
 def update(request, article_pk):
+    
     article = get_object_or_404(Article, pk=article_pk)
-    if request.method == 'POST':
-        article_form = ArticleForm(request.POST, instance=article)   # 수정할 대상이 article이기 때문에 instance로 입력 설정
-        if article_form.is_valid():
-            # article.title = article_form.cleaned_data.get('title')
-            # article.content = article_form.cleaned_data.get('content')
-            # article.save()
-            article = article_form.save()
-            return redirect('articles:detail', article.pk)
+    if request.user == article.user:
+        # if request.user != article.user:
+            # return redirect('articles:detail', article_pk)
+        if request.method == 'POST':
+            article_form = ArticleForm(request.POST, instance=article)   # 수정할 대상이 article이기 때문에 instance로 입력 설정
+            if article_form.is_valid():
+                # article.title = article_form.cleaned_data.get('title')
+                # article.content = article_form.cleaned_data.get('content')
+                # article.save()
+                article = article_form.save()
+                return redirect('articles:detail', article.pk)
+        else:
+            # article_form = ArticleForm(
+            #     initial={
+            #         'title': article.title,
+            #         'content': article.content
+            #         }
+            #     )
+            article_form = ArticleForm(instance=article)
+        context = {
+            'article': article,
+            'article_form':article_form
+        }
+        return render(request, 'articles/form.html', context)
     else:
-        # article_form = ArticleForm(
-        #     initial={
-        #         'title': article.title,
-        #         'content': article.content
-        #         }
-        #     )
-        article_form = ArticleForm(instance=article)
-    context = {
-        'article': article,
-        'article_form':article_form
-    }
-    return render(request, 'articles/form.html', context)
+        return HttpResponseForbidden()
 
+@login_required
 def comment_create(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
     # 1. modelform에 사용자 입력값 넣고
@@ -134,6 +146,7 @@ def comment_create(request, article_pk):
         comment = comment_form.save(commit=False)  # comment object로 리턴된다.
         # 3-2. Foreign key를 입력하고 저장
         comment.article = article
+        comment.user = request.user
         comment.save()  # DB에 쿼리
         # 4. return redirect
         return redirect('articles:detail', article_pk)
@@ -146,10 +159,16 @@ def comment_create(request, article_pk):
     # comment.save()
     # return redirect('articles:detail', article.pk)
 
-@require_POST
-def comment_delete(request, article_pk, comment_pk):
-    comment = Comment.objects.get(pk=comment_pk)
-    comment.delete()
-    messages.error(request, '삭제되었습니다.')
 
-    return redirect('articles:detail', article_pk)
+
+@require_POST
+@login_required
+def comment_delete(request, article_pk, comment_pk):
+    if request.user == Comment.objects.get(pk=comment_pk):
+        comment = Comment.objects.get(pk=comment_pk)
+        comment.delete()
+        messages.error(request, '삭제되었습니다.')
+
+        return redirect('articles:detail', article_pk)
+    else:
+        return HttpResponseForbidden()

@@ -40,7 +40,8 @@ class Article(models.Model):
 class Comment(models.Model):
     content = models.CharField(max_length=140)
     created_at = models.DateTimeField(auto_now_add=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE)  
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # on_delete
     # 1. CASCADE : 글이 삭제되었을 때 모든 댓글을 삭제
     # 2. PROTECT : 댓글이 존재하면 글 삭제 안됨
