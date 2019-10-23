@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login  # login함수
 from django.contrib.auth import logout as auth_logout
 from .forms import CustomUserChangeForm, CustomUserCreationForm
+from .models import User
+from django.contrib.auth import get_user_model
 # Create your views here.
 
 def signup(request):
@@ -69,3 +71,30 @@ def password_change(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'accounts/password_change.html', {'form': form})
+
+def profile(request, account_pk):
+    User = get_user_model()
+    user = get_object_or_404(User, pk=account_pk)
+    context = {
+        'user_profile' : user
+    }
+    from IPython import embed
+    # embed()
+    return render(request, 'accounts/profile.html', context)
+
+from .models import User as customUser
+def follow(request, account_pk):
+    User = get_user_model()
+    obama = get_object_or_404(User, pk=account_pk)
+
+    if obama != request.user:
+        # obama를 팔로우한 적이 있다면
+        if request.user in obama.followers.all():
+            # 취소
+            obama.followers.remove(request.user)
+        # 아니면
+        else:
+            # 팔로우
+            obama.followers.add(request.user)
+
+    return redirect('accounts:profile', account_pk)

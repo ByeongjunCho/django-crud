@@ -1229,5 +1229,29 @@ class Patient(models.Model):
    d2.patients.add(p2)
    ```
 
-   
+2. 예약 취소
+
+   ```python
+   d2.patients.remove(p2)
+   ```
+
+## 17. 좋아요 구현
+
+```python
+user.like_articles.all()  # related_name (M2M)
+# => Queryset (article instance 담겨있음)
+user.article_set.all()  # related_name X (FK 1:N)
+# => Queryset (article instance 담겨있음)
+article.user  # FK(1:N)
+# => article을 작성한 user instance
+article.like_users.all() # M2M
+# => Queryset article에 좋아요를 한 
+```
+
+```html
+{{article.like_user.count}}
+댓글수 {{article.comment_set.all()}}
+```
+
+
 

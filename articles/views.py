@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 # from accounts.models import User
 from django.http import HttpResponseForbidden
+from django.http import HttpResponse
 from django.contrib.auth import get_user_model 
 from IPython import embed
 
@@ -134,23 +135,27 @@ def update(request, article_pk):
     else:
         return HttpResponseForbidden()
 
-@login_required
+@require_POST
 def comment_create(request, article_pk):
-    article = get_object_or_404(Article, pk=article_pk)
-    # 1. modelform에 사용자 입력값 넣고
-    comment_form = CommentForm(request.POST)  # ModelForm instance
-    # 2. 검증
-    if comment_form.is_valid():
-        # 3. 맞으면 저장
-        # 3-1. 사용자 입력값으로 comment instance 생성 (저장은 X)
-        comment = comment_form.save(commit=False)  # comment object로 리턴된다.
-        # 3-2. Foreign key를 입력하고 저장
-        comment.article = article
-        comment.user = request.user
-        comment.save()  # DB에 쿼리
-        # 4. return redirect
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=article_pk)
+        # 1. modelform에 사용자 입력값 넣고
+        comment_form = CommentForm(request.POST)  # ModelForm instance
+        # 2. 검증
+        if comment_form.is_valid():
+            # 3. 맞으면 저장
+            # 3-1. 사용자 입력값으로 comment instance 생성 (저장은 X)
+            comment = comment_form.save(commit=False)  # comment object로 리턴된다.
+            # 3-2. Foreign key를 입력하고 저장
+            comment.article = article
+            comment.user = request.user
+            comment.save()  # DB에 쿼리
+            # 4. return redirect
+        else:
+            messages.success(request, '댓글이 형식이 맞지 않습니다.')
         return redirect('articles:detail', article_pk)
-
+    else:
+        return HttpResponse('Unauthorized', status=401)
     # article = Article.objects.get(pk=article_pk)
     # comment = Comment()
     # comment.content = request.POST.get('comment_content')
@@ -164,11 +169,24 @@ def comment_create(request, article_pk):
 @require_POST
 @login_required
 def comment_delete(request, article_pk, comment_pk):
-    if request.user == Comment.objects.get(pk=comment_pk):
-        comment = Comment.objects.get(pk=comment_pk)
+    comment = Comment.objects.get(pk=comment_pk)
+    if request.user == comment.user:
         comment.delete()
-        messages.error(request, '삭제되었습니다.')
-
+        # messages.add_message(request, messages.INFO, '댓글이 삭제 되었습니다.')
+        messages.success(request, '댓글이 삭제되었습니다.')
         return redirect('articles:detail', article_pk)
     else:
         return HttpResponseForbidden()
+
+@login_required
+def like(request, article_pk):
+    # 좋아요를 눌렀다면
+    article = Article.objects.get(pk=article_pk)
+    if request.user in article.like_users.all():
+        # 좋아요 취소 로직
+        article.like_users.remove(request.user)
+    # 아니면
+    else:
+        # 좋아요 로직
+        article.like_users.add(request.user)
+    return redirect('articles:detail', article_pk)
