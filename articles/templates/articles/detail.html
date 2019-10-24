@@ -7,10 +7,13 @@
 <p>수정일자 : {{ article.updated_at }}</p>
 <p>이 글을 작성한 닝겐 : {{article.user}}</p>
 <hr>
-<p>{{ article.content }}</p>
+<p>{{ article.content|linebreaksbr }}</p>
+{% load hashtag %}
+<p>{{ article|make_link|safe }} </p>
+{% if article.image %}
 <img src="{{ article.image.url }}" alt="{{article.image.name}} ">
 <img src="{{ article.image_thumbnail.url }}" alt="{{article.image_thumbnail.name}} ">
-
+{% endif %}
 <p>{{ article.like_users.count }}명이 이 글을 좋아합니다. </p>
 <a href="{% url 'articles:like' article.pk %}">
 {% if user in article.like_users.all%}

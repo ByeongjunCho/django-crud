@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from IPython import embed
 
 from .forms import ArticleForm, CommentForm
-from .models import Article, Comment
+from .models import Article, Comment, HashTag
 # Create your views here.
 def index(request):
     articles = Article.objects.order_by('-id')
@@ -44,6 +44,17 @@ def create(request):
             article = article_form.save(commit=False)
             article.user = request.user  # User class의 객체
             article.save()
+            
+            # 해시태그 저장 및 연결 작업
+            for word in article.content.split():
+                if word.startswith('#'):
+                    hashtag, created = HashTag.objects.get_or_create(content=word)
+                    article.hashtags.add(hashtag)
+                    # if HashTag.objects.filter(content=word).exists():
+                    #     hashtag = HashTag.objects.get(content=word)
+                    # try:
+                    #     hashtag = HashTag.objects.get(content=word)
+                    # except:
             # article = article_form.save(commit=False)
             # article.image = request.FILES.get('image')
             # embed()
@@ -106,7 +117,6 @@ def delete(request, article_pk):
 #         return redirect('articles:detail', article.pk)    
 
 def update(request, article_pk):
-    
     article = get_object_or_404(Article, pk=article_pk)
     if request.user == article.user:
         # if request.user != article.user:
@@ -118,6 +128,12 @@ def update(request, article_pk):
                 # article.content = article_form.cleaned_data.get('content')
                 # article.save()
                 article = article_form.save()
+                # 해시태그 수정
+                article.hashtags.clear()
+                for word in article.content.split():
+                    if word.startswith('#'):
+                        hashtag, created = HashTag.objects.get_or_create(content=word)
+                        article.hashtags.add(hashtag)
                 return redirect('articles:detail', article.pk)
         else:
             # article_form = ArticleForm(
@@ -190,3 +206,10 @@ def like(request, article_pk):
         # 좋아요 로직
         article.like_users.add(request.user)
     return redirect('articles:detail', article_pk)
+
+def hashtag(request, tag_pk):
+    hashtag = get_object_or_404(HashTag, pk=tag_pk)
+    context = {
+        'hashtag': hashtag
+    }
+    return render(request, 'articles/hashtag.html', context)
