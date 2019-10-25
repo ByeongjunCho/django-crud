@@ -1,9 +1,14 @@
 {% extends 'articles/base.html' %}
+{% load gravatar %}
 {% block body %}
-<h1>{{ user_profile.username }}의 프로필</h1>
-
+<div class="row">
+<div class="col-6">
+    <h1 class="text-center">{{ user_profile.username }}의 프로필
+    <img src="{{ user.email|makehash }}" alt="">
+    </h1>
+</div>
+<div class="col-6 text-center">
 {% with user_profile.followers.all as followers %}
-
 <a href="{% url 'accounts:follow' user_profile.pk %}">
     {% if user in followers.all %}
         팔로우취소
@@ -15,6 +20,10 @@
     <h2>팔로우 : {{user_profile.followings.all.count}} </h2>
     <h2>팔로워 : {{followers|length}} </h2>
 {% endwith %}
+
+</div>
+</div>
+
 
 {% if user == user_profile %}
 <p>내가 쓴 글 : {{user_profile.article_set.all.count}}</p>
