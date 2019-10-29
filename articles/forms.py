@@ -3,7 +3,7 @@ from .models import Article, Comment
 class ArticleForm(forms.ModelForm):
     # 위젯 설정 2.
     title = forms.CharField(
-        max_length=1, 
+        max_length=30, 
         label='제목',
         help_text='140자 이내로 작성 바랍니다.',
         widget=forms.TextInput(

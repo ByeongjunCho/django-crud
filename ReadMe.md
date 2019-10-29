@@ -1253,5 +1253,84 @@ article.like_users.all() # M2M
 댓글수 {{article.comment_set.all()}}
 ```
 
+## 18. 소셜 로그인(OAuth-인증체계)
 
+### 1. auth 설정
+
+* authentication(인증 - 로그인)
+* authorization(권한 - 로그인 이후)
+
+```bash
+$ pip install django-allauth
+```
+
+```python
+# settings.py
+.....
+# django-allauth
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',    
+)
+
+
+# 나머지는 https://django-allauth.readthedocs.io/en/latest/installation.html에서 확인 가능
+```
+
+카카오 설정 후
+
+* admin -> 소셜 어플리캐이션 -> 클라이언트 id: REST API. 비밀 키: SECRET KEY
+
+* [social accounts templates추가]( https://django-allauth.readthedocs.io/en/latest/templates.html )
+
+```html
+{% load socialaccount %}
+<a href="{% provider_login_url "kakao" %}">kakao 로그인</a>
+```
+
+> 1. 사용자는 카카오링크(/accounts/kakao/login/)
+> 2. 사용자는 카카오 사이트 로그인 페이지를 확인
+> 3. 사용자는 로그인 정보를 카카오로 보냄
+> 4. 카카오는 redirect url로 django 서버로 사용자 토큰을 보냄
+> 5. 해당 토큰을 이용하여 카카오에 인증 요청
+> 6. 카카오에서 확인
+> 7. 로그인
+>
+> -----------------------------------------------------------
+>
+> 토큰(access token)은 유효기간이 있는데, refresh token을 통해서 토큰 재발급을 받을 수 있다.
+>
+> **카카오** - 리소스 서버/인증 서버
+>
+> **사용자(리소스 owner)** - 유저
+>
+> **django** - 클라이언트
+
+
+
+## 참고
+
+### model IntegerField에 제한된 숫자 입력하기
+
+```python
+from django.core.validators import MinValueValidator, EmailValidator
+from django import models
+class Person(models.Model):
+    age = models.IntegerField(validators=[MinValueValidator(20, message='미성년자 출입금지')])
+    email = models.CharField(max_length=120, validators=[EmailValidator(message='이메일 형식이 아닙니다.')])
+```
+
+* 데이터 입력 후 검증시 validators에 있는 message를 출력하며 에러 발생
+* 혹은 validators에 내가 만든 함수를 넣어도 된다.[Validator django공식문서 확인]( https://docs.djangoproject.com/en/2.2/ref/validators/ )
+
+### 나와 내 친구들이 작성한 글 확인하기
+
+* 내 친구들이(request.user.followings) 작성한 것 + 내가(request.user) 작성한 article 필요
+
+```python
+def explore(request):    
+    my_articles = request.user.article_set.all()
+    my_friends = request.user.followings.all()
+    return render(request, 'articles/explore.html', {'my_articles': my_articles, 'my_friends': my_friends})
+```
 

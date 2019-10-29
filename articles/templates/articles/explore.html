@@ -1,0 +1,58 @@
+{% extends 'articles/base.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'articles/style.css' %}">
+<style>
+  tr > th:nth-of-type(2) {
+    width: 50%;
+  }
+</style>
+{% endblock %}
+{% block body %}
+  <img src="{% static 'articles/gom.jpg' %}" class="rounded mx-auto d-block" alt="">
+  
+  <h1 class="text-center title">게시판에 오신걸 환영합니다.</h1>
+  {% if user.is_authenticated %}
+  <a href="{% url 'articles:create' %}" class="btn btn-warning">글 작성하기</a>
+  {% endif %}
+  <table class="table mt-5">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">제목</th>
+        <th scope="col">작성일자</th>
+      </tr>
+    </thead>
+    <tbody>
+      <h2>내가 쓴 글</h2>
+      {% for article in my_articles %}
+      <tr>
+        <th scope="row">{{ article.id }}</th>
+        <td>
+          <a href="{% url 'articles:detail' article.pk %}">
+              {{ article.title }}
+          </a>
+        </td>
+        <td>{{ article.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tbody>
+      <h2>친구들이 쓴 글</h2>
+      {% for friend in my_friends %}
+        <h2>{{friend.username}}</h2>
+        {% for article in friend.article_set.all%}
+          <tr>
+            <th scope="row">{{ article.id }}</th>
+            <td>
+              <a href="{% url 'articles:detail' article.pk %}">
+                  {{ article.title }}
+              </a>
+            </td>
+            <td>{{ article.created_at }}</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

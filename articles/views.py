@@ -213,3 +213,10 @@ def hashtag(request, tag_pk):
         'hashtag': hashtag
     }
     return render(request, 'articles/hashtag.html', context)
+
+
+def explore(request):
+    # 내 친구들이(request.user.followings) 작성한 것 + 내가(request.user) 작성한 article 필요
+    my_articles = request.user.article_set.all()
+    my_friends = request.user.followings.all()
+    return render(request, 'articles/explore.html', {'my_articles': my_articles, 'my_friends': my_friends})

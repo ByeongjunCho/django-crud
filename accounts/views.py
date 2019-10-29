@@ -7,6 +7,7 @@ from django.contrib.auth import logout as auth_logout
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 from .models import User
 from django.contrib.auth import get_user_model
+from IPython import embed
 # Create your views here.
 
 def signup(request):
@@ -26,6 +27,7 @@ def signup(request):
     return render(request, 'accounts/form.html', context)
 
 def login(request):
+    # embed()
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST) # cookie와 session을 request를 통해 넘겨준다.
         if form.is_valid():
@@ -98,3 +100,6 @@ def follow(request, account_pk):
             obama.followers.add(request.user)
 
     return redirect('accounts:profile', account_pk)
+
+
+    
