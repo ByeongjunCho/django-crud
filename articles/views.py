@@ -216,7 +216,12 @@ def hashtag(request, tag_pk):
 
 
 def explore(request):
+    from itertools import chain
     # 내 친구들이(request.user.followings) 작성한 것 + 내가(request.user) 작성한 article 필요
-    my_articles = request.user.article_set.all()
-    my_friends = request.user.followings.all()
-    return render(request, 'articles/explore.html', {'my_articles': my_articles, 'my_friends': my_friends})
+    followings = request.user.followings.all()
+    followings = chain(followings, [request.user])
+    articles = Article.objects.filter(user__in=followings).order_by('-id')
+    context = {
+        'articles': articles
+    }
+    return render(request, 'articles/index.html', context)
