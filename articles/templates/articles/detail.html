@@ -14,14 +14,14 @@
 <img src="{{ article.image.url }}" alt="{{article.image.name}} ">
 <img src="{{ article.image_thumbnail.url }}" alt="{{article.image_thumbnail.name}} ">
 {% endif %}
-<p>{{ article.like_users.count }}명이 이 글을 좋아합니다. </p>
-<a href="{% url 'articles:like' article.pk %}">
+<p><span id="like-count">{{article.like_users.count}}</span> 명이 이 글을 좋아합니다.</p>
+
 {% if user in article.like_users.all%}
-    <i class="fas fa-heart fa-2x" style="color: red;"></i>
+<i id="like-button" data-id="{{article.id}}" class="fas fa-heart fa-2x" style="color: red;"></i>
 {% else %}
-    <i class="far fa-heart fa-2x" style="color: red;"></i>
+<i id="like-button" data-id="{{article.id}}" class="far fa-heart fa-2x" style="color: red;"></i>
 {% endif %}
-</a>
+
 
 <a href="{% url 'articles:index' %}">목록으로</a>
 
@@ -38,10 +38,10 @@
 
 <hr>
 <form action="{% url 'articles:comment_create' article.pk %}" method='POST'>
-    {% csrf_token %}   
+    {% csrf_token %}
     {% bootstrap_form comment_form %}
     {% buttons %}
-        <button type="submit" class="btn btn-primary">댓글 작성</button>
+    <button type="submit" class="btn btn-primary">댓글 작성</button>
     {% endbuttons %}
 </form>
 
@@ -49,7 +49,7 @@
     {% csrf_token %}
     {% bootstrap_form comment_form %}
     {% buttons %}
-        <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
     {% endbuttons %}
 </form> {% endcomment %}
 
@@ -58,27 +58,52 @@
 <h2>댓글 작성</h2>
 <h3>댓글 수: {{comments.count}}</h3>
 {% for comment in comments %}
-    <li>{{comment.content}}</li>
-    <li>{{comment.created_at}}</li>
-    <li>작성자 : {{comment.user}}</li>
-    {% if comment.user == user %}
-    <form action="{% url 'articles:comment_delete' article.pk comment.pk %}" method='POST'>
-        {% csrf_token %}
-        
-        <input type="submit" value="댓글 삭제">
-    </form>
-    {% endif %}
-    <hr>
+<li>{{comment.content}}</li>
+<li>{{comment.created_at}}</li>
+<li>작성자 : {{comment.user}}</li>
+{% if comment.user == user %}
+<form action="{% url 'articles:comment_delete' article.pk comment.pk %}" method='POST'>
+    {% csrf_token %}
+
+    <input type="submit" value="댓글 삭제">
+</form>
+{% endif %}
+<hr>
 {% empty %}
-    <p>댓글이 없다.</p>
+<p>댓글이 없다.</p>
 
 {% endfor %}
 
 {% comment %} {% for comment in article.comment_set.all %}
-    <li>{{comment.content}}</li>
-    <li>{{comment.created_at}}</li>
-    <hr>
+<li>{{comment.content}}</li>
+<li>{{comment.created_at}}</li>
+<hr>
 {% endfor %}
 
 {{ a.0 }} {% endcomment %}
+{% endblock %}
+{% block script %}
+<script>
+    const likeButton = document.querySelector('#like-button')
+    likeButton.addEventListener('click', function (event) {
+        console.log(event.target.dataset.id)
+        axios.get(`/articles/${event.target.dataset.id}/like/`)
+            .then(response => {
+                console.log(response)
+                console.log(event.target)
+                const likeCount = document.querySelector('#like-count')
+                if (response.data.is_liked){
+                    event.target.classList.remove('far')
+                    event.target.classList.add('fas')
+                    likeCount.innerText = `${response.data.like_count}`
+                }
+                else
+                {
+                    event.target.classList.remove('fas')
+                    event.target.classList.add('far')
+                    likeCount.innerText = `${response.data.like_count}`
+                }
+            })
+    })
+</script>
 {% endblock %}

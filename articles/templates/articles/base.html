@@ -18,6 +18,8 @@
   {% block css %}{% endblock %}
 </head>
 <body>
+    
+
   {% include '_navbar.html' %}
 
   <div class="container mt-5">
@@ -42,6 +44,9 @@
   </script>
   <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
   <script src="https://kit.fontawesome.com/54e342cbc4.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    {% block script %}
+    {% endblock %}
 </body>
 
 </html>
