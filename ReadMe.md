@@ -558,7 +558,7 @@ STATICFILES_DIRS = [
 
 ### 1. 기본 설정
 
-* models.ImageField() 를 사용하기 위해서는 pillow` 라이브러리가 필요하다.
+* models.ImageField() 를 사용하기 위해서는 `pillow` 라이브러리가 필요하다.
 
   ```bash
   pip install pillow
@@ -755,7 +755,7 @@ def login(request):
 * Login상태를 확인해주는 메서드가 존재한다.
 
   ```python
-  rquest.user.is_authenticated
+  request.user.is_authenticated
   # request.user 은 현재 로그인한 user의 정보를 보여준다.
   # 로그인이 되지 않은 경우는 
   # request는 요청받은 데이터 객체
@@ -823,7 +823,7 @@ def password_change(request):
 
   => 프로젝트를 만들면서 미리 수행 권장 : Django 추천
 
-  => 변경 후 settings 설정의 AUTH_USER_model()
+  => 변경 후 settings 설정의 AUTH_USER_MODEL
 
   => User클래스는 get_user_model() settings설정에서  
 
