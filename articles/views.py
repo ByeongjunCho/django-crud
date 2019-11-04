@@ -198,22 +198,25 @@ def comment_delete(request, article_pk, comment_pk):
 @login_required
 def like(request, article_pk):
     # 좋아요를 눌렀다면
-    article = Article.objects.get(pk=article_pk)
-    if request.user in article.like_users.all():
-        # 좋아요 취소 로직
-        article.like_users.remove(request.user)
-        is_liked = False
-    # 아니면
+    if request.is_ajax():
+        article = Article.objects.get(pk=article_pk)
+        if request.user in article.like_users.all():
+            # 좋아요 취소 로직
+            article.like_users.remove(request.user)
+            is_liked = False
+        # 아니면
+        else:
+            # 좋아요 로직
+            article.like_users.add(request.user)
+            is_liked = True
+        
+        context = {
+            'is_liked': is_liked, 
+            'like_count': article.like_users.count()
+            }
+        return JsonResponse(context)
     else:
-        # 좋아요 로직
-        article.like_users.add(request.user)
-        is_liked = True
-    
-    context = {
-        'is_liked': is_liked, 
-        'like_count': article.like_users.count()
-        }
-    return JsonResponse(context)
+        return HttpResponseForbidden()
 
 def hashtag(request, tag_pk):
     hashtag = get_object_or_404(HashTag, pk=tag_pk)
